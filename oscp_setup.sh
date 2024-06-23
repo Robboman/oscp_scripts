@@ -16,6 +16,12 @@ red='\033[0;31m'
 green='\033[0;32m'
 nc='\033[0m'
 
+# Check to see if xdotool is installed
+if ! command -v xdotool &> /dev/null; then
+    printf "${red}xdotool is not installed. Exiting script.${nc}\n"
+    exit 1
+fi
+
 # Validate arguments
 if [ $# -lt 2 ]; then
     printf "${red}Usage: $0 <platform> [type]${nc}\n"
