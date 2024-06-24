@@ -38,7 +38,7 @@ fi
 
 # Validate arguments
 if [ $# -lt 4 ]; then
-    printf "${red}Usage: $0 <type> <name> <ad_int/ad_ext/ad_nonmap/sa#> <yes/no> <ip1> [ip2] ...${nc}\n"
+    printf "${red}Usage: $0 <type> <name> <ad_int/ad_ext/ad_nonmap/sa[1-3]> <yes/no> <ip1> [ip2] ...${nc}\n"
     printf "${red}Explanation: $0 <Machine Type> <Machine Name> <Boundary Type> <Auto Terminal (Xdotool)> <IP(s)>${nc}\n"
     printf "${red}Example: oscp challenge relia ad_int yes 192.168.1.140${nc}\n"
     printf "${red}Example: oscp practice heist ad_ext yes 192.168.1.120${nc}\n"
@@ -54,6 +54,13 @@ boundary=$3
 autoterm=$4
 shift 4
 
+# Extract and validate boundaries
+if ! [[ "$boundary" == "ad_int" || "$boundary" == "ad_ext" || "$boundary" == "ad_nonmap" || "$boundary" =~ sa[0,1-3] ]]; then
+    printf "${red}Warning: Invalid boundary type detected - $boundary${nc}\n"
+    printf "${red}Usage: $0 <type> <name> <ad_int/ad_ext/ad_nonmap/sa[1-3]> <yes/no> <ip1> [ip2] ...${nc}\n"
+    exit 1
+fi
+
 # Extract and validate IP addresses
 arg_ip_list=""
 ip_regex='^((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])$'
@@ -65,6 +72,7 @@ for ip in "$@"; do
         arg_ip_list+="$ip"
     else
         printf "${red}Warning: Invalid IP address format detected - $ip${nc}\n"
+        exit 1
     fi
 done
 
@@ -192,6 +200,7 @@ dir_exp="$dir_labboundary/exploits"
 dir_tool="$dir_labboundary/tools"
 dir_loot="$dir_labboundary/loot"
 dir_enum="$dir_labboundary/enum"
+dir_hist="$dir_labboundary/history"
 dir_init="$dir_enum/init"
 dir_nmap="$dir_enum/nmap"
 dir_burp="$dir_enum/burp"
@@ -221,6 +230,9 @@ if [ ! -d "$dir_loot" ]; then
 fi
 if [ ! -d "$dir_enum" ]; then
     mkdir -p $dir_enum
+fi
+if [ ! -d "$dir_hist" ]; then
+    mkdir -p $dir_hist
 fi
 if [ ! -d "$dir_init" ]; then
     mkdir -p $dir_init
@@ -1032,15 +1044,20 @@ printf "${yellow}cd $dir_labboundary${nc}\n"
 # Declare end time elapsed variables and print
 end_time=$(date +%s)
 duration=$((end_time - start_time))
+curr_time=$(date +%Y%m%d_%H%M%S)
+export curr_time
+export dir_hist
 printf "$pre_warn Add FQDNs and IPs to /etc/hosts!${nc}\n"
 printf "$pre_win Keep a positive attitude. Take breaks. KISS. You got this!${nc}\n"
+printf "$pre_info Remember to log command history as follows: ${nc}\n"
+printf '%s\n' "script -f boundary_dir/history/<tabname>_\$(date +%Y%m%d_%H%M%S).log"
 printf "$pre_info Overall elapsed time: $duration seconds.${nc}\n"
 
 # Terminal commands
 if [ "$autoterm" == "yes" ]; then
     xdotool key alt+shift+s && sleep 1 && xdotool type "start" && xdotool key Return && sleep 1
-    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "scans" && xdotool key Return && sleep 1 && xdotool key ctrl+shift+d
-    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "bust" && xdotool key Return
-    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "enum" && xdotool key Return
-    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "shell" && xdotool key Return
+    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "scans" && xdotool key Return && sleep 1 && xdotool type "script -f $dir_hist/scans_a_$curr_time.log" && xdotool key Return && sleep 1 && xdotool key ctrl+shift+d && sleep 1 && xdotool type "script -f $dir_hist/scans_b_$curr_time.log" && xdotool key Return
+    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "bust" && xdotool key Return && sleep 1 && xdotool type "script -f $dir_hist/bust_$curr_time.log" && xdotool key Return
+    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "enum" && xdotool key Return && sleep 1 && xdotool type "script -f $dir_hist/enum_$curr_time.log" && xdotool key Return
+    xdotool key ctrl+shift+t && sleep 1 && xdotool key alt+shift+s && sleep 1 && xdotool type "shell" && xdotool key Return && sleep 1 && xdotool type "script -f $dir_hist/shell_$curr_time.log" && xdotool key Return
 fi
