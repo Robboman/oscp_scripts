@@ -4,7 +4,7 @@
 # Date: 06/23/2024
 # Author: Robboman
 # GitHub: https://github.com/Robboman
-# Version: 1.0
+# Version: 1.1
 # Description: This script is the culmination of my efforts to automate certain repetitive aspects of the initial enumeration of an OSCP-like machine, like directory creation, terminal tab renaming, initial and in-depth nmap scanning, and domain enumeration. This script also prints a selection of enumeration commands for every network port/service identified. There are no autopwn/autoexploit functions or commands in this script, all functionality is intended to enhance manual enumeration and organization. Use of alias recommended for easier script init.
 # Requirments: Xdotool (https://github.com/jordansissel/xdotool)
 
