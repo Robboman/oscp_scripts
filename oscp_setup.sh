@@ -37,7 +37,7 @@ type=$2
 sudo openvpn /mnt/hgfs/shared/openvpn/$platform/$type.ovpn &
 
 # Terminal commands
-sleep 10
+sleep 30 #add time to enter username and password
 xdotool key alt+shift+s && sleep 0.5 && xdotool type "vpn" && xdotool key Return
 xdotool key ctrl+shift+t && sleep 0.5 && xdotool key alt+shift+s && sleep 0.5 && xdotool type "pivot" && xdotool key Return && sleep 0.5 && xdotool key ctrl+shift+d && sleep 0.5 && xdotool type "ligolo -selfcert" && xdotool key Return && sleep 0.5 && xdotool key ctrl+shift+r
 xdotool key ctrl+shift+t && sleep 0.5 && xdotool key alt+shift+s && sleep 0.5 && xdotool type "transfer" && xdotool key Return && sleep 0.5 && xdotool key ctrl+shift+r && sleep 0.5 && xdotool key ctrl+shift+r && sleep 0.5 && xdotool key alt+Left && xdotool key alt+Left && sleep 0.5 && xdotool type "http 82 --directory=/home/kali/Transfer" && xdotool key Return && sleep 0.5 && xdotool type "kali" && xdotool key Return && sleep 0.5 && xdotool key ctrl+shift+r && sleep 0.5 && xdotool type "tree Transfer -L 3" && xdotool key Return

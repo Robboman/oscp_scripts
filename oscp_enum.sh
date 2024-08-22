@@ -267,7 +267,7 @@ fi
 
 # Define color prefixes
 pre_info="${dark_gray}[${bold_white}/${dark_gray}]${bold_blue}"
-pre_scan="${dark_gray}[${bold_cyan}\$${dark_gray}]${bold_blue}"
+pre_cmd="${dark_gray}[${bold_cyan}\$${dark_gray}]${bold_blue}"
 pre_out="${dark_gray}[${bold_magenta}=${dark_gray}]${bold_blue}"
 pre_fail="${dark_gray}[${bold_red}-${dark_gray}]${bold_blue}"
 pre_win="${dark_gray}[${bold_green}+${dark_gray}]${bold_blue}"
@@ -373,14 +373,14 @@ for ip in $arg_ip_list; do
                 exit 1
             fi
         elif [ "$boundary" == "ad_int" ]; then
-            scan_tcp_init="sudo nmap -Pn -n --unprivileged --open $ip -oN $dir_nmap/nmap_open_tcp_$ip_last"
+            scan_tcp_init="sudo nmap -Pn -n -v --unprivileged --open $ip -oN $dir_nmap/nmap_open_tcp_$ip_last"
             printf "$pre_info Type: ${bold_magenta}Top TCP Ports${nc}\n"
-            printf "$pre_scan Command: ${yellow}$scan_tcp_init${nc}\n"
+            printf "$pre_cmd Command: ${yellow}$scan_tcp_init${nc}\n"
             eval $scan_tcp_init
         else
-            scan_tcp_init="sudo nmap -Pn -n -sS -p- --open $ip -oN $dir_nmap/nmap_open_tcp_$ip_last"
+            scan_tcp_init="sudo nmap -Pn -n -v -T4 -p- --open $ip -oN $dir_nmap/nmap_open_tcp_$ip_last"
             printf "$pre_info Type: ${bold_magenta}All TCP Ports${nc}\n"
-            printf "$pre_scan Command: ${yellow}$scan_tcp_init${nc}\n"
+            printf "$pre_cmd Command: ${yellow}$scan_tcp_init${nc}\n"
             eval $scan_tcp_init
         fi
         print_time "end"
@@ -396,14 +396,14 @@ for ip in $arg_ip_list; do
                 sudo touch $dir_nmap/nmap_open_udp_$ip_last
             fi
         elif [ "$boundary" == "ad_int" ]; then
-            scan_udp_init="sudo nmap -sU -Pn -F --open $ip -oN $dir_nmap/nmap_open_udp_$ip_last"
+            scan_udp_init="sudo nmap -Pn -v -sU -F --open $ip -oN $dir_nmap/nmap_open_udp_$ip_last"
             printf "$pre_info Type: ${bold_magenta}Top UDP Ports${nc}\n"
-            printf "$pre_scan Command: ${yellow}$scan_udp_init${nc}\n"
+            printf "$pre_cmd Command: ${yellow}$scan_udp_init${nc}\n"
             eval $scan_udp_init
         else
-            scan_udp_init="sudo nmap -Pn -sU --min-rate=100 --max-retries=2 --open $ip -oN $dir_nmap/nmap_open_udp_$ip_last"
+            scan_udp_init="sudo nmap -Pn -v -sU --min-rate=100 --max-retries=2 --open $ip -oN $dir_nmap/nmap_open_udp_$ip_last"
             printf "$pre_info Type: ${bold_magenta}Top 1000 UDP Ports${nc}\n"
-            printf "$pre_scan Command: ${yellow}$scan_udp_init${nc}\n"
+            printf "$pre_cmd Command: ${yellow}$scan_udp_init${nc}\n"
             eval $scan_udp_init
         fi
         print_time "end"
@@ -417,8 +417,8 @@ for ip in $arg_ip_list; do
         print_time "start"
         printf "$pre_info Tool: ${bold_cyan}Nmap${nc}\n"
         printf "$pre_info Type: ${bold_magenta}Open TCP Ports${nc}\n"
-        scan_tcp_comp="sudo nmap -Pn -A -T4 --min-rate 1000 -p $open_tcp $ip -oN $dir_nmap/nmap_scan_tcp_$ip_last"
-        printf "$pre_scan Command: ${yellow}$scan_tcp_comp${nc}\n"
+        scan_tcp_comp="sudo nmap -Pn -v -sCV -T4 -p $open_tcp $ip -oN $dir_nmap/nmap_scan_tcp_$ip_last"
+        printf "$pre_cmd Command: ${yellow}$scan_tcp_comp${nc}\n"
         if [ ! -z "$open_tcp" ]; then
             eval $scan_tcp_comp
             printf "$pre_win Scan successful.${nc}\n"
@@ -435,8 +435,8 @@ for ip in $arg_ip_list; do
         print_time "start"
         printf "$pre_info Tool: ${bold_cyan}Nmap${nc}\n"
         printf "$pre_info Type: ${bold_magenta}Open UDP Ports${nc}\n"
-        scan_udp_comp="sudo nmap -Pn -sU -sV -sC -T4 --min-rate=100 --max-retries=2 -p $open_udp $ip -oN $dir_nmap/nmap_scan_udp_$ip_last"
-        printf "$pre_scan Command: ${yellow}$scan_udp_comp${nc}\n"
+        scan_udp_comp="sudo nmap -Pn -v -sU -sCV --min-rate=100 --max-retries=2 -p $open_udp $ip -oN $dir_nmap/nmap_scan_udp_$ip_last"
+        printf "$pre_cmd Command: ${yellow}$scan_udp_comp${nc}\n"
         if [ ! -z "$open_udp" ]; then
             eval $scan_udp_comp
             printf "$pre_win Scan successful.${nc}\n"
@@ -499,7 +499,7 @@ for ip in $arg_ip_list; do
         print_time "start"
         printf "$pre_info Tool: ${bold_cyan}NetExec (NXC)${nc}\n"
         printf "$pre_info Type: ${bold_magenta}SMB Mode Domain Info Enum${nc}\n"
-        printf "$pre_scan Command: ${yellow}nxc smb $ip -u '' -p ''${nc}\n"
+        printf "$pre_cmd Command: ${yellow}nxc smb $ip -u '' -p ''${nc}\n"
         if [ ! -z "$open_smb" ]; then
             nxc smb $ip -u '' -p '' | tee -a $dir_init/nxc_domain_$ip_last
             printf "$pre_win Command ran successfully.${nc}\n"
@@ -514,7 +514,7 @@ for ip in $arg_ip_list; do
             domain_default="oscp.exam"
             ad="true"
         else
-            domain_default="$name.com"
+            domain_default="$name.offsec"
             ad="false"
         fi
         # Set nmap greps based on scan type
@@ -556,7 +556,7 @@ for ip in $arg_ip_list; do
             if [ -n "$open_dns" ]; then
                 printf "$pre_info Tool: ${bold_cyan}nslookup${nc}\n"
                 printf "$pre_info Type: ${bold_magenta}DNS Query LDAP Domain Controller${nc}\n"
-                printf "$pre_scan Command: ${yellow}nslookup -type=SRV _ldap._tcp.dc._msdcs.$domain $ip${nc}\n"
+                printf "$pre_cmd Command: ${yellow}nslookup -type=SRV _ldap._tcp.dc._msdcs.$domain $ip${nc}\n"
                 nslookup -type=SRV _ldap._tcp.dc._msdcs.$domain $ip > $dir_init/output_nslookup_$ip_last
                 dc=$(grep -oP 'service = \d+ \d+ \d+ \K[^ ]+' $dir_init/output_nslookup_$ip_last | sed 's/\.$//' | awk '{print tolower($0)}')
                 if [ ! -z "$dc" ]; then
